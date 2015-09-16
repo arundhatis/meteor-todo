@@ -4,7 +4,7 @@
 /* global $ */
 /* global Todos */
 Todos = new Meteor.Collection('todos');
-// Routes
+// Routes 
 Router
   .configure({
     layoutTemplate: 'main'
