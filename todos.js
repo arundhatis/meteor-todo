@@ -1,20 +1,10 @@
+/* global add */
 /* global Todo */
 /* global Router */
 /* global $ */
 /* global Todos */
 Todos = new Meteor.Collection('todos');
 // Routes
-Todo = function (){
-  this.complete = false;
-};
-Todo.prototype.Complete = function(){
-  this.complete = true;
-};
-Todo.prototype.InComplete = function(){
-  if(this.complete){
-    this.complete = false;
-  }
-};
 Router
   .configure({
     layoutTemplate: 'main'
@@ -25,7 +15,7 @@ Router.route('register', {
   title: 'register',
   onBeforeAction: function (req, res, next) {
     // in here next() is equivalent to this.next();
-    document.title="register";
+    document.title = "register";
     next();
   }
 }, { where: 'server' });
@@ -37,7 +27,7 @@ if (Meteor.isClient) {
   // todo template helpers and events
   Template.todos.helpers({
     todo: function () {
-      return Todos.find({}, { sort: { createdAt: -1 } });
+      return TaskService.getTasks();
     }
   });
   // 'todoItem' template helpers and events
@@ -46,41 +36,37 @@ if (Meteor.isClient) {
       return this.completed ? "checked" : "";
     }
   });
-  
+
   Template.toDoItem.events({
     'click .delete-todo': function (event) {
       event.preventDefault();
       var todo_id = this._id;
       var confirm = window.confirm("Delete this todo Item?");
       if (confirm)
-        Todos.remove({ _id: todo_id });
+        TaskService.removeTask(todo_id);
     },
     'keyup [name=todoItem]': function (event) {
       if (event.which == 13 || event.which == 27) {
         $(event.target).blur();
       }
       else {
-        var todo_id = this._id;
-        var todo_name = $(event.target).val();
-        Todos.update({ _id: todo_id }, { $set: { name: todo_name } });
+        var updatedName = $(event.target).val();
+        TaskService.updateTask(this._id, { name: updatedName });
       }
     },
     'change [type=checkbox]': function (event) {
       var todo_id = this._id,
         isCompleted = $(event.target).is(':checked');
-      Todos.update({ _id: todo_id }, { $set: { completed: isCompleted } });
+      TaskService.updateTask(todo_id, { completed: isCompleted });
     }
   });
   // add todo template helpers and events
   Template.addToDo.events({
     'submit form': function (event) {
       event.preventDefault();
-      var todo = {
-        name: $('input[name=toDoName]').val(),
-        completed: false,
-        createdAt: new Date()
-      };
-      Todos.insert(todo);
+     
+      var title=$('input[name=toDoName]').val();
+      TaskService.insertTask(title);
     }
   });
   // todo Item completed information helpers and events

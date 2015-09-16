@@ -1,26 +1,24 @@
-/* global describe */
-/* global expect */
-/* global it */
-/* global beforeEach */
-/* globals Player: false, Song: false */
+/* global spyOn */
 
-describe('Todo', function() {
-  var todo ;
-  beforeEach(function() {
-    todo = new Todo();
+describe('TaskService', function () {
+  'use strict';
+  describe("getTasks", function () {
+    it('should return all tasks from DB in descending in descending order of creation', function () {
+      var result = [];
+      spyOn(Todos, 'find').and.returnValue(result);
+      expect(TaskService.getTasks()).toBe(result);
+      expect(Todos.find.calls.argsFor(0)).toEqual([{}, { sort: { createdAt: -1 } }]);
+    });
   });
 
-  it('should be able to complete a task', function() {
-    todo.Complete();
-    expect(todo.complete).toEqual(true);
 
+  describe("removeTask", function () {
+    it("should remove the selected task from DB", function () {
+      var taskID = 1,
+        result = { _id: taskID };
+      spyOn(Todos, 'remove');
+      TaskService.removeTask(taskID);
+      expect(Todos.remove.calls.argsFor(0)).toEqual([result])
+    });
   });
-  
-  it('should be able to incomplete a task', function(){
-    expect(todo.complete).toBe(false);
-    todo.Complete();
-    expect(todo.complete).toEqual(true);
-    todo.InComplete();
-    expect(todo.complete).toEqual(false);
-  })
 });
